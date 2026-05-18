@@ -523,6 +523,168 @@ body {
   text-decoration: underline;
 }
 
+/* API Setup Screen */
+.api-setup-screen {
+  padding: 8px 0 40px;
+}
+.api-setup-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px var(--shadow);
+  text-align: center;
+}
+.api-setup-card .setup-icon { font-size: 52px; display: block; margin-bottom: 16px; }
+.api-setup-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+.api-setup-card > p { font-size: 14px; color: var(--text-light); line-height: 1.7; margin-bottom: 24px; }
+
+.steps-list {
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  text-align: left;
+  list-style: none;
+  counter-reset: steps;
+}
+.steps-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.5;
+}
+.steps-list li:last-child { border-bottom: none; }
+.step-num {
+  min-width: 24px;
+  height: 24px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.api-input-big {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 10px;
+  text-align: left;
+}
+.api-input-big:focus { border-color: var(--primary); }
+.api-input-big::placeholder { color: #bbb; }
+.api-error-msg {
+  font-size: 13px;
+  color: #e74c3c;
+  margin-bottom: 10px;
+  min-height: 18px;
+  text-align: left;
+}
+.btn-setup {
+  width: 100%;
+  padding: 15px;
+  background: var(--gradient);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(91,158,143,0.35);
+}
+.btn-setup:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(91,158,143,0.45); }
+.api-note {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+/* Chat screen header with settings button */
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.chat-header-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.chat-header-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #27ae60;
+  font-weight: 500;
+}
+.btn-change-key {
+  font-size: 12px;
+  color: var(--text-light);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.btn-change-key:hover { border-color: var(--primary); color: var(--primary); }
+
+/* Inline key change panel */
+.key-change-panel {
+  background: #FFFBF8;
+  border: 1.5px solid rgba(91,158,143,0.25);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.key-change-panel h4 { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+.key-change-row { display: flex; gap: 8px; }
+.key-change-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+.key-change-input:focus { border-color: var(--primary); }
+.key-change-save {
+  padding: 10px 16px;
+  background: var(--gradient);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.key-status-msg {
+  font-size: 12px;
+  margin-top: 8px;
+  min-height: 16px;
+}
+.key-status-msg.ok { color: #27ae60; }
+.key-status-msg.ng { color: #e74c3c; }
+
 /* Settings Panel */
 .settings-panel {
   background: #FFFBF8;
@@ -671,73 +833,106 @@ body {
 <div id="tab-meal" class="tab-content">
 <div class="container">
 
-  <div class="meal-intro">
-    <span class="icon">🍽️</span>
-    <h2>今日食べたものを相談しよう</h2>
-    <p>食べたものを教えてください。管理栄養士AIが栄養バランスや改善のヒントをやさしくアドバイスします。責めずに、一緒に考えます。</p>
-  </div>
+  <!-- ① APIキー未設定：セットアップ画面 -->
+  <div id="api-setup-screen" class="api-setup-screen">
+    <div class="api-setup-card fade-in">
+      <span class="setup-icon">🔑</span>
+      <h3>APIキーを設定してください</h3>
+      <p>この食事相談機能はClaude AI（Anthropic社）を使用します。<br>無料でAPIキーを取得するだけで、すぐに使えます。</p>
 
-  <!-- Settings Panel -->
-  <div class="settings-panel" id="settings-panel" style="display:none">
-    <h4>🔑 Claude APIキー設定</h4>
-    <div class="api-input-group">
-      <input class="api-input" type="password" id="api-key-input" placeholder="sk-ant-api03-..." />
-      <button class="api-save-btn" onclick="saveApiKey()">保存</button>
+      <ol class="steps-list">
+        <li>
+          <span class="step-num">1</span>
+          <span><a href="https://console.anthropic.com/" target="_blank" style="color:var(--primary); font-weight:600;">console.anthropic.com</a> にアクセス</span>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <span>Googleアカウントで無料サインアップ（メール確認あり）</span>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <span>左メニュー「<strong>API Keys</strong>」→「Create Key」でキーを作成</span>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <span>表示された <code style="background:#f0f0f0; padding:2px 6px; border-radius:4px; font-size:12px;">sk-ant-api03-...</code> をコピーして下に貼り付け</span>
+        </li>
+      </ol>
+
+      <input
+        class="api-input-big"
+        type="text"
+        id="api-key-setup-input"
+        placeholder="sk-ant-api03-ここにAPIキーを貼り付け"
+        autocomplete="off"
+      />
+      <p class="api-error-msg" id="api-setup-error"></p>
+      <button class="btn-setup" onclick="setupApiKey()">✅ 設定して食事相談を始める</button>
+      <p class="api-note">🔒 APIキーはあなたのブラウザ内のみに保存されます。外部には送信されません。</p>
     </div>
-    <p class="api-status" id="api-status"></p>
-    <p style="font-size:12px; color:var(--text-light); margin-top:8px;">
-      APIキーは <a href="https://console.anthropic.com/" target="_blank" style="color:var(--primary);">Anthropic Console</a> で取得できます。ブラウザ内のみに保存されます。
-    </p>
   </div>
 
-  <!-- Chat Interface -->
-  <div class="chat-wrapper" id="chat-wrapper">
-    <div class="chat-messages" id="chat-messages">
-      <!-- Initial message -->
-      <div class="message ai">
-        <div class="message-avatar">🌿</div>
-        <div>
-          <div class="message-bubble">
-            こんにちは！ 管理栄養士AIです🌱<br><br>
-            今日食べたものを教えてください。朝・昼・夜でも、まとめてでも大丈夫です。<br><br>
-            「バランスはどうかな？」「こんなもの食べちゃったけど…」そんな気軽な相談もOKですよ。
+  <!-- ② APIキー設定済み：チャット画面 -->
+  <div id="chat-screen" style="display:none;">
+
+    <div class="chat-header">
+      <span class="chat-header-title">🍽️ 食事相談AI</span>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="chat-header-status">✅ AI接続中</span>
+        <button class="btn-change-key" onclick="toggleKeyChange()">🔑 キー変更</button>
+      </div>
+    </div>
+
+    <!-- キー変更パネル（通常は非表示） -->
+    <div class="key-change-panel" id="key-change-panel" style="display:none;">
+      <h4>🔑 APIキーを変更</h4>
+      <div class="key-change-row">
+        <input class="key-change-input" type="text" id="key-change-input" placeholder="sk-ant-api03-..." autocomplete="off" />
+        <button class="key-change-save" onclick="changeApiKey()">保存</button>
+      </div>
+      <p class="key-status-msg" id="key-change-status"></p>
+    </div>
+
+    <div class="chat-wrapper">
+      <div class="chat-messages" id="chat-messages">
+        <div class="message ai">
+          <div class="message-avatar">🌿</div>
+          <div>
+            <div class="message-bubble">
+              こんにちは！ 管理栄養士AIです🌱<br><br>
+              今日食べたものを教えてください。朝・昼・夜でも、まとめてでも大丈夫です。<br><br>
+              「バランスはどうかな？」「こんなもの食べちゃったけど…」そんな気軽な相談もOKですよ。
+            </div>
+            <span class="message-time">今日</span>
           </div>
-          <span class="message-time">今日</span>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="chat-hints" id="chat-hints">
+          <button class="hint-chip" onclick="useHint(this)">今日の食事を入力する</button>
+          <button class="hint-chip" onclick="useHint(this)">夜食を食べてしまった</button>
+          <button class="hint-chip" onclick="useHint(this)">糖質を取りすぎた？</button>
+          <button class="hint-chip" onclick="useHint(this)">外食続きで心配</button>
+          <button class="hint-chip" onclick="useHint(this)">タンパク質は足りてる？</button>
+        </div>
+        <div class="chat-input-row">
+          <textarea
+            class="chat-textarea"
+            id="chat-input"
+            rows="1"
+            placeholder="今日食べたものを入力…（例: 朝はトースト1枚、昼はラーメン、夜は…）"
+            onkeydown="handleKeyDown(event)"
+            oninput="autoResize(this)"
+          ></textarea>
+          <button class="chat-send-btn" id="send-btn" onclick="sendMessage()">➤</button>
         </div>
       </div>
     </div>
 
-    <div class="chat-input-area">
-      <div class="chat-hints" id="chat-hints">
-        <button class="hint-chip" onclick="useHint(this)">今日の食事を入力する</button>
-        <button class="hint-chip" onclick="useHint(this)">夜食を食べてしまった</button>
-        <button class="hint-chip" onclick="useHint(this)">糖質を取りすぎた？</button>
-        <button class="hint-chip" onclick="useHint(this)">外食続きで心配</button>
-        <button class="hint-chip" onclick="useHint(this)">タンパク質は足りてる？</button>
-      </div>
-      <div class="chat-input-row">
-        <textarea
-          class="chat-textarea"
-          id="chat-input"
-          rows="1"
-          placeholder="今日食べたものを入力…（例: 朝はトースト1枚、昼はラーメン、夜は…）"
-          onkeydown="handleKeyDown(event)"
-          oninput="autoResize(this)"
-        ></textarea>
-        <button class="chat-send-btn" id="send-btn" onclick="sendMessage()">
-          ➤
-        </button>
-      </div>
-      <div class="api-key-toggle" id="api-key-toggle">
-        <span class="api-key-link" onclick="toggleSettings()">
-          <span id="key-status-icon">⚙️</span> APIキー設定
-        </span>
-      </div>
+    <div class="disclaimer mt-16">
+      ※ このツールは参考情報です。医療・栄養指導の代替ではありません。
     </div>
-  </div>
-
-  <div class="disclaimer mt-16">
-    ※ このツールは参考情報を提供するものです。医療・栄養指導の代替ではありません。体重管理や疾患に関することは専門家にご相談ください。
   </div>
 
 </div>
@@ -1426,51 +1621,84 @@ function useHint(btn) {
   document.getElementById('chat-input').focus();
 }
 
-// API Key Management
-function toggleSettings() {
-  const panel = document.getElementById('settings-panel');
-  const isVisible = panel.style.display !== 'none';
-  panel.style.display = isVisible ? 'none' : 'block';
-  if (!isVisible) {
-    const saved = localStorage.getItem('diet_claude_api_key');
-    if (saved) {
-      document.getElementById('api-key-input').value = saved;
-      document.getElementById('api-status').textContent = '✓ APIキーが保存されています';
-      document.getElementById('api-status').className = 'api-status ok';
-    }
+// ============================================================
+// API KEY MANAGEMENT
+// ============================================================
+function initMealTab() {
+  const saved = localStorage.getItem('diet_claude_api_key');
+  if (saved) {
+    document.getElementById('api-setup-screen').style.display = 'none';
+    document.getElementById('chat-screen').style.display = 'block';
+  } else {
+    document.getElementById('api-setup-screen').style.display = 'block';
+    document.getElementById('chat-screen').style.display = 'none';
   }
 }
 
-function saveApiKey() {
-  const key = document.getElementById('api-key-input').value.trim();
-  const statusEl = document.getElementById('api-status');
+function setupApiKey() {
+  const key = document.getElementById('api-key-setup-input').value.trim();
+  const errEl = document.getElementById('api-setup-error');
 
   if (!key) {
-    statusEl.textContent = 'APIキーを入力してください';
-    statusEl.className = 'api-status ng';
+    errEl.textContent = '⚠️ APIキーを入力してください';
     return;
   }
   if (!key.startsWith('sk-ant-')) {
-    statusEl.textContent = '⚠️ 形式が正しくない可能性があります（sk-ant-... で始まるキーを入力）';
-    statusEl.className = 'api-status ng';
-  } else {
-    localStorage.setItem('diet_claude_api_key', key);
-    statusEl.textContent = '✓ 保存しました！';
-    statusEl.className = 'api-status ok';
-    document.getElementById('key-status-icon').textContent = '✅';
-    setTimeout(() => {
-      document.getElementById('settings-panel').style.display = 'none';
-    }, 1200);
+    errEl.textContent = '⚠️ 形式が違います。「sk-ant-api03-」で始まるキーを貼り付けてください';
+    return;
+  }
+  localStorage.setItem('diet_claude_api_key', key);
+  errEl.textContent = '';
+  document.getElementById('api-setup-screen').style.display = 'none';
+  document.getElementById('chat-screen').style.display = 'block';
+}
+
+function toggleKeyChange() {
+  const panel = document.getElementById('key-change-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  if (panel.style.display === 'block') {
+    document.getElementById('key-change-input').focus();
   }
 }
 
-// Init: check API key
-window.addEventListener('load', () => {
-  const saved = localStorage.getItem('diet_claude_api_key');
-  if (saved) {
-    document.getElementById('key-status-icon').textContent = '✅';
+function changeApiKey() {
+  const key = document.getElementById('key-change-input').value.trim();
+  const statusEl = document.getElementById('key-change-status');
+
+  if (!key) {
+    statusEl.textContent = 'APIキーを入力してください';
+    statusEl.className = 'key-status-msg ng';
+    return;
   }
+  if (!key.startsWith('sk-ant-')) {
+    statusEl.textContent = '⚠️ 形式が違います（sk-ant-api03- で始まるキー）';
+    statusEl.className = 'key-status-msg ng';
+    return;
+  }
+  localStorage.setItem('diet_claude_api_key', key);
+  statusEl.textContent = '✓ 保存しました！';
+  statusEl.className = 'key-status-msg ok';
+  document.getElementById('key-change-input').value = '';
+  setTimeout(() => {
+    document.getElementById('key-change-panel').style.display = 'none';
+    statusEl.textContent = '';
+  }, 1500);
+}
+
+// Init: check API key on load & tab switch
+window.addEventListener('load', () => {
+  initMealTab();
 });
+
+// Override switchTab to re-check key when meal tab opens
+const _origSwitchTab = window.switchTab;
+window.switchTab = function(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (tab === 'meal') initMealTab();
+};
 </script>
 </body>
 </html>
