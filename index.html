@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>体質別ダイエット診断 & 食事相談ツール</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #5B9E8F;
+  --primary-light: #7FBCAF;
+  --primary-dark: #3D7A6E;
+  --accent: #E8956B;
+  --accent-light: #F0B090;
+  --bg: #F6F4F1;
+  --bg-card: #FFFFFF;
+  --text: #2C3E50;
+  --text-light: #7F8C8D;
+  --border: #E0DDD8;
+  --shadow: rgba(91,158,143,0.12);
+  --gradient: linear-gradient(135deg, #5B9E8F 0%, #7FBCAF 100%);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.7;
+}
+/* Header */
+.app-header {
+  background: var(--gradient);
+  color: white;
+  padding: 16px 20px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 16px rgba(91,158,143,0.3);
+}
+.app-header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+.app-header p { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+
+/* Tabs */
+.tab-nav {
+  display: flex;
+  background: white;
+  border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 70px;
+  z-index: 99;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.tab-btn {
+  flex: 1;
+  padding: 14px 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--text-light);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: linear-gradient(to bottom, rgba(91,158,143,0.04), transparent);
+}
+.tab-btn:hover { background: rgba(91,158,143,0.06); }
+
+/* Content */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.container { max-width: 680px; margin: 0 auto; padding: 20px 16px 60px; }
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 16px var(--shadow);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.btn-primary {
+  background: var(--gradient);
+  color: white;
+  box-shadow: 0 4px 16px rgba(91,158,143,0.35);
+  width: 100%;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(91,158,143,0.45); }
+.btn-secondary {
+  background: white;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  width: 100%;
+}
+.btn-outline {
+  background: transparent;
+  color: var(--text-light);
+  border: 1.5px solid var(--border);
+  font-size: 14px;
+  padding: 10px 20px;
+}
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+/* ===== DIAGNOSIS TOOL ===== */
+.intro-hero {
+  text-align: center;
+  padding: 40px 20px 32px;
+}
+.intro-hero .icon { font-size: 64px; margin-bottom: 16px; display: block; }
+.intro-hero h2 { font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+.intro-hero p { color: var(--text-light); font-size: 14px; margin-bottom: 24px; line-height: 1.8; }
+
+.type-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 20px 0;
+}
+.type-chip {
+  background: linear-gradient(135deg, #f8f6f3, #ede9e4);
+  border-radius: 12px;
+  padding: 12px 10px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.type-chip .chip-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+/* Progress */
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.progress-bar-wrap {
+  background: var(--border);
+  border-radius: 50px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar {
+  background: var(--gradient);
+  height: 100%;
+  border-radius: 50px;
+  transition: width 0.4s ease;
+}
+.q-count { font-size: 12px; color: var(--text-light); font-weight: 500; }
+.q-category {
+  display: inline-block;
+  background: rgba(91,158,143,0.1);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 50px;
+  margin-bottom: 12px;
+}
+.q-text {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* Options */
+.options-list { display: flex; flex-direction: column; gap: 10px; }
+.option-btn {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  line-height: 1.4;
+}
+.option-btn .opt-num {
+  min-width: 26px;
+  height: 26px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+.option-btn:hover { border-color: var(--primary-light); background: rgba(91,158,143,0.05); }
+.option-btn:hover .opt-num { border-color: var(--primary); color: var(--primary); }
+.option-btn.selected {
+  border-color: var(--primary);
+  background: rgba(91,158,143,0.08);
+}
+.option-btn.selected .opt-num {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.q-nav {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.q-nav .btn-outline { flex: 0 0 auto; padding: 12px 18px; }
+.q-nav .btn-primary { flex: 1; }
+
+/* ===== RESULTS ===== */
+.result-header {
+  text-align: center;
+  padding: 28px 20px;
+  background: linear-gradient(135deg, rgba(91,158,143,0.08), rgba(127,188,175,0.05));
+  border-radius: 16px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(91,158,143,0.15);
+}
+.result-header .result-icon { font-size: 56px; display: block; margin-bottom: 12px; }
+.result-header .result-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--primary);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.result-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.result-header p { font-size: 14px; color: var(--text-light); line-height: 1.7; }
+
+.result-section { margin-bottom: 16px; }
+.result-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.result-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.tag {
+  background: rgba(91,158,143,0.1);
+  color: var(--primary-dark);
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid rgba(91,158,143,0.2);
+}
+.tag.avoid {
+  background: rgba(232,149,107,0.1);
+  color: #c0622a;
+  border-color: rgba(232,149,107,0.2);
+}
+
+.advice-list { list-style: none; }
+.advice-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.advice-list li:last-child { border-bottom: none; }
+.advice-list li::before { content: '✓'; color: var(--primary); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+.score-bar-section { margin-bottom: 20px; }
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.score-label { min-width: 120px; color: var(--text-light); }
+.score-track { flex: 1; background: var(--border); border-radius: 50px; height: 8px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 50px; background: var(--gradient); transition: width 0.6s ease; }
+
+.result-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+
+/* ===== MEAL CONSULTATION ===== */
+.meal-intro {
+  text-align: center;
+  padding: 28px 20px;
+  background: linear-gradient(135deg, rgba(232,149,107,0.08), rgba(240,176,144,0.05));
+  border-radius: 16px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(232,149,107,0.15);
+}
+.meal-intro .icon { font-size: 48px; display: block; margin-bottom: 12px; }
+.meal-intro h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.meal-intro p { font-size: 13px; color: var(--text-light); line-height: 1.7; }
+
+/* API Key Setup */
+.api-setup {
+  background: white;
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.api-setup h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.api-setup p { font-size: 13px; color: var(--text-light); margin-bottom: 16px; line-height: 1.6; }
+.api-input-group { display: flex; gap: 8px; }
+.api-input {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.api-input:focus { border-color: var(--primary); }
+.api-save-btn {
+  padding: 12px 20px;
+  background: var(--gradient);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.api-status {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.api-status.ok { color: #27ae60; }
+.api-status.ng { color: #e74c3c; }
+
+/* Chat */
+.chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 280px);
+  min-height: 400px;
+}
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px 16px 0 0;
+  scroll-behavior: smooth;
+}
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-track { background: transparent; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.message { display: flex; gap: 10px; margin-bottom: 16px; }
+.message.user { flex-direction: row-reverse; }
+.message-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.message.ai .message-avatar { background: linear-gradient(135deg, #5B9E8F, #7FBCAF); }
+.message.user .message-avatar { background: linear-gradient(135deg, #E8956B, #F0B090); }
+.message-bubble {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.message.ai .message-bubble {
+  background: #F0F7F5;
+  border: 1px solid rgba(91,158,143,0.15);
+  border-radius: 4px 16px 16px 16px;
+  color: var(--text);
+}
+.message.user .message-bubble {
+  background: var(--gradient);
+  color: white;
+  border-radius: 16px 4px 16px 16px;
+}
+.message-time { font-size: 11px; opacity: 0.6; display: block; margin-top: 4px; }
+.message.user .message-time { text-align: right; }
+
+.typing-indicator { display: flex; gap: 4px; padding: 4px 0; }
+.typing-dot {
+  width: 7px; height: 7px;
+  background: var(--primary);
+  border-radius: 50%;
+  animation: typingBounce 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+.chat-input-area {
+  background: white;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+  padding: 12px;
+}
+.chat-input-row { display: flex; gap: 8px; align-items: flex-end; }
+.chat-textarea {
+  flex: 1;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: none;
+  outline: none;
+  min-height: 44px;
+  max-height: 120px;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+  overflow-y: auto;
+}
+.chat-textarea:focus { border-color: var(--primary); }
+.chat-send-btn {
+  width: 44px;
+  height: 44px;
+  background: var(--gradient);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  font-size: 18px;
+}
+.chat-send-btn:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(91,158,143,0.4); }
+.chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.chat-hints { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 0; }
+.hint-chip {
+  background: rgba(91,158,143,0.08);
+  border: 1px solid rgba(91,158,143,0.2);
+  color: var(--primary-dark);
+  border-radius: 50px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.hint-chip:hover { background: rgba(91,158,143,0.15); }
+
+.api-key-toggle {
+  text-align: center;
+  margin-top: 10px;
+}
+.api-key-link {
+  font-size: 12px;
+  color: var(--text-light);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Settings Panel */
+.settings-panel {
+  background: #FFFBF8;
+  border: 1px solid rgba(232,149,107,0.2);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.settings-panel h4 { font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-light); }
+
+/* Disclaimer */
+.disclaimer {
+  background: rgba(127,140,141,0.08);
+  border-left: 3px solid var(--text-light);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 16px;
+  line-height: 1.6;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeInUp 0.35s ease; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.slide-in { animation: slideIn 0.3s ease; }
+
+/* Utilities */
+.hidden { display: none !important; }
+.text-center { text-align: center; }
+.mt-16 { margin-top: 16px; }
+.section-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .type-preview-grid { grid-template-columns: repeat(2, 1fr); }
+  .q-text { font-size: 16px; }
+  .card { padding: 18px; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>🌿 体質別ダイエットサポート</h1>
+  <p>あなたに合った方法で、無理なく健康的に</p>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('diagnosis')">
+    <span>🔍</span> 体質診断
+  </button>
+  <button class="tab-btn" onclick="switchTab('meal')">
+    <span>🍽️</span> 食事相談
+  </button>
+</nav>
+
+<!-- ===== 診断ツール ===== -->
+<div id="tab-diagnosis" class="tab-content active">
+<div class="container">
+
+  <!-- Intro Screen -->
+  <div id="intro-screen">
+    <div class="intro-hero fade-in">
+      <span class="icon">🌱</span>
+      <h2>あなたの「痩せにくい理由」がわかる</h2>
+      <p>20問の質問に答えると、7つのタイプの中からあなたに最適なダイエット方法を診断します。<br>更年期・ホルモン・ストレスなど、体の状態に合わせた具体的なアドバイスをお届けします。</p>
+    </div>
+
+    <div class="type-preview-grid fade-in">
+      <div class="type-chip"><span class="chip-icon">🌸</span>ホルモン型</div>
+      <div class="type-chip"><span class="chip-icon">🌊</span>自律神経型</div>
+      <div class="type-chip"><span class="chip-icon">💚</span>マインド型</div>
+      <div class="type-chip"><span class="chip-icon">⚡</span>代謝型</div>
+      <div class="type-chip"><span class="chip-icon">🌿</span>腸活型</div>
+      <div class="type-chip"><span class="chip-icon">🔄</span>食習慣型</div>
+      <div class="type-chip"><span class="chip-icon">🥗</span>栄養型</div>
+    </div>
+
+    <div class="card fade-in">
+      <p style="font-size:13px; color:var(--text-light); line-height:1.8;">
+        <strong>🕐 所要時間:</strong> 約3〜5分<br>
+        <strong>🎯 対象:</strong> 10代〜60代以上、男女問わず<br>
+        <strong>🔒 プライバシー:</strong> 回答はブラウザのみで処理・外部送信なし
+      </p>
+      <button class="btn btn-primary mt-16" onclick="startDiagnosis()">
+        <span>✨</span> 診断スタート
+      </button>
+    </div>
+
+    <div class="disclaimer">
+      ※ この診断は健康の参考情報を提供するものであり、医療診断ではありません。症状が深刻な場合は医師にご相談ください。
+    </div>
+  </div>
+
+  <!-- Question Screen -->
+  <div id="question-screen" class="hidden">
+    <div class="card slide-in">
+      <div class="progress-header">
+        <span class="q-count" id="q-count">1 / 20</span>
+        <span style="font-size:13px; color:var(--text-light);">
+          残り <span id="q-remaining">19</span>問
+        </span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar" style="width: 5%"></div>
+      </div>
+    </div>
+
+    <div class="card fade-in" id="q-card">
+      <span class="q-category" id="q-category">基本情報</span>
+      <p class="q-text" id="q-text"></p>
+      <div class="options-list" id="options-list"></div>
+      <div class="q-nav">
+        <button class="btn btn-outline" onclick="prevQuestion()" id="prev-btn" style="display:none">
+          ← 戻る
+        </button>
+        <button class="btn btn-primary" onclick="nextQuestion()" id="next-btn" disabled>
+          次へ →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Screen -->
+  <div id="result-screen" class="hidden fade-in">
+    <div id="result-content"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===== 食事相談ツール ===== -->
+<div id="tab-meal" class="tab-content">
+<div class="container">
+
+  <div class="meal-intro">
+    <span class="icon">🍽️</span>
+    <h2>今日食べたものを相談しよう</h2>
+    <p>食べたものを教えてください。管理栄養士AIが栄養バランスや改善のヒントをやさしくアドバイスします。責めずに、一緒に考えます。</p>
+  </div>
+
+  <!-- Settings Panel -->
+  <div class="settings-panel" id="settings-panel" style="display:none">
+    <h4>🔑 Claude APIキー設定</h4>
+    <div class="api-input-group">
+      <input class="api-input" type="password" id="api-key-input" placeholder="sk-ant-api03-..." />
+      <button class="api-save-btn" onclick="saveApiKey()">保存</button>
+    </div>
+    <p class="api-status" id="api-status"></p>
+    <p style="font-size:12px; color:var(--text-light); margin-top:8px;">
+      APIキーは <a href="https://console.anthropic.com/" target="_blank" style="color:var(--primary);">Anthropic Console</a> で取得できます。ブラウザ内のみに保存されます。
+    </p>
+  </div>
+
+  <!-- Chat Interface -->
+  <div class="chat-wrapper" id="chat-wrapper">
+    <div class="chat-messages" id="chat-messages">
+      <!-- Initial message -->
+      <div class="message ai">
+        <div class="message-avatar">🌿</div>
+        <div>
+          <div class="message-bubble">
+            こんにちは！ 管理栄養士AIです🌱<br><br>
+            今日食べたものを教えてください。朝・昼・夜でも、まとめてでも大丈夫です。<br><br>
+            「バランスはどうかな？」「こんなもの食べちゃったけど…」そんな気軽な相談もOKですよ。
+          </div>
+          <span class="message-time">今日</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="chat-hints" id="chat-hints">
+        <button class="hint-chip" onclick="useHint(this)">今日の食事を入力する</button>
+        <button class="hint-chip" onclick="useHint(this)">夜食を食べてしまった</button>
+        <button class="hint-chip" onclick="useHint(this)">糖質を取りすぎた？</button>
+        <button class="hint-chip" onclick="useHint(this)">外食続きで心配</button>
+        <button class="hint-chip" onclick="useHint(this)">タンパク質は足りてる？</button>
+      </div>
+      <div class="chat-input-row">
+        <textarea
+          class="chat-textarea"
+          id="chat-input"
+          rows="1"
+          placeholder="今日食べたものを入力…（例: 朝はトースト1枚、昼はラーメン、夜は…）"
+          onkeydown="handleKeyDown(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+        <button class="chat-send-btn" id="send-btn" onclick="sendMessage()">
+          ➤
+        </button>
+      </div>
+      <div class="api-key-toggle" id="api-key-toggle">
+        <span class="api-key-link" onclick="toggleSettings()">
+          <span id="key-status-icon">⚙️</span> APIキー設定
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer mt-16">
+    ※ このツールは参考情報を提供するものです。医療・栄養指導の代替ではありません。体重管理や疾患に関することは専門家にご相談ください。
+  </div>
+
+</div>
+</div>
+
+<script>
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ============================================================
+// DIAGNOSIS QUESTIONS
+// ============================================================
+const QUESTIONS = [
+  {
+    id: 1,
+    category: "基本情報",
+    text: "現在の年齢を教えてください",
+    options: [
+      { text: "10代〜20代", scores: { E:1, F:1, N:1 } },
+      { text: "30代", scores: { A:1, F:1, N:1 } },
+      { text: "40代", scores: { H:2, A:1 } },
+      { text: "50代以上", scores: { H:3, A:1 } }
+    ]
+  },
+  {
+    id: 2,
+    category: "ホルモン・生理",
+    text: "生理不順・更年期症状・ホルモンバランスの乱れを感じますか？（男性の方は、最近ホルモン変化（疲れやすさ・気力低下など）を感じるか選んでください）",
+    options: [
+      { text: "ほとんど感じない", scores: { N:1 } },
+      { text: "少し気になることがある", scores: { H:1, A:1 } },
+      { text: "生理不順・PMS・更年期症状がある", scores: { H:3 } },
+      { text: "深刻な症状がある（婦人科/内科に通っている）", scores: { H:3, A:1 } }
+    ]
+  },
+  {
+    id: 3,
+    category: "ホルモン・生理",
+    text: "体のむくみはありますか？",
+    options: [
+      { text: "ほとんどない", scores: { N:1 } },
+      { text: "夕方になると足がむくむ", scores: { H:1, G:1 } },
+      { text: "常にむくんでいると感じる", scores: { H:2, A:1 } },
+      { text: "朝から顔・体がむくんでいる", scores: { H:3, G:1 } }
+    ]
+  },
+  {
+    id: 4,
+    category: "ホルモン・生理",
+    text: "肌・髪の変化はありますか？",
+    options: [
+      { text: "特に問題ない", scores: { N:1 } },
+      { text: "少し乾燥する", scores: { H:1 } },
+      { text: "肌荒れが増えた・抜け毛が気になる", scores: { H:2, N:1 } },
+      { text: "明らかに変化がある（乾燥・薄毛・肌荒れ深刻）", scores: { H:3 } }
+    ]
+  },
+  {
+    id: 5,
+    category: "自律神経・睡眠",
+    text: "睡眠の質はどうですか？",
+    options: [
+      { text: "ぐっすり眠れている", scores: { N:1 } },
+      { text: "寝付くのに時間がかかる", scores: { A:2 } },
+      { text: "夜中に目が覚めることがある", scores: { A:2, H:1 } },
+      { text: "慢性的な不眠・睡眠の質が悪い", scores: { A:3, H:1 } }
+    ]
+  },
+  {
+    id: 6,
+    category: "自律神経・睡眠",
+    text: "疲れやすさを感じますか？",
+    options: [
+      { text: "元気で疲れにくい", scores: { N:1 } },
+      { text: "たまに疲れる", scores: { A:1 } },
+      { text: "疲れやすく回復に時間がかかる", scores: { A:2, E:1 } },
+      { text: "常に倦怠感・だるさがある", scores: { A:3, E:1, H:1 } }
+    ]
+  },
+  {
+    id: 7,
+    category: "自律神経・睡眠",
+    text: "日常的なストレスはどのくらいありますか？",
+    options: [
+      { text: "ほとんどない・うまく発散できている", scores: { N:1 } },
+      { text: "少しある", scores: { A:1, F:1 } },
+      { text: "かなりある・ストレスを抱えやすい", scores: { A:2, M:2 } },
+      { text: "常にストレスにさらされている", scores: { A:3, M:3 } }
+    ]
+  },
+  {
+    id: 8,
+    category: "マインド・心理",
+    text: "ストレスや感情に反応して食べることがありますか？",
+    options: [
+      { text: "ほとんどない", scores: { N:1 } },
+      { text: "たまにある（イライラした時など）", scores: { M:1 } },
+      { text: "よくある（嫌なことがあると食べてしまう）", scores: { M:3, A:1 } },
+      { text: "常に食べることで感情を処理している", scores: { M:3, F:1, A:1 } }
+    ]
+  },
+  {
+    id: 9,
+    category: "マインド・心理",
+    text: "ダイエットに対して、罪悪感や「ゼロか百か」の思考はありますか？",
+    options: [
+      { text: "気楽に取り組める", scores: { N:1 } },
+      { text: "少し義務感や焦りを感じる", scores: { M:1 } },
+      { text: "「食べてしまった」と自分を責めることがある", scores: { M:2 } },
+      { text: "「全部ダメ」になるか「完璧にやる」かの極端な思考がある", scores: { M:3 } }
+    ]
+  },
+  {
+    id: 10,
+    category: "マインド・心理",
+    text: "過去のダイエット経験はどうですか？",
+    options: [
+      { text: "ダイエットをしたことがない", scores: { F:1 } },
+      { text: "成功した経験がある", scores: { N:1 } },
+      { text: "リバウンドを繰り返している", scores: { M:2, E:1 } },
+      { text: "極端な制限をして体重が増えた経験がある", scores: { M:2, H:1, E:1 } }
+    ]
+  },
+  {
+    id: 11,
+    category: "代謝・体質",
+    text: "体の冷えはありますか？",
+    options: [
+      { text: "冷えはない", scores: { N:1 } },
+      { text: "手足が冷えやすい", scores: { E:2, H:1 } },
+      { text: "常に体全体が冷えている", scores: { E:3 } },
+      { text: "夏でも体が冷える・冷え性が深刻", scores: { E:3, A:1 } }
+    ]
+  },
+  {
+    id: 12,
+    category: "代謝・体質",
+    text: "運動習慣はありますか？",
+    options: [
+      { text: "週3回以上・積極的に動いている", scores: { N:1 } },
+      { text: "週1〜2回程度", scores: { F:1 } },
+      { text: "ほとんど運動しない", scores: { E:2 } },
+      { text: "運動したいが疲れてできない・体が重い", scores: { A:2, E:1 } }
+    ]
+  },
+  {
+    id: 13,
+    category: "代謝・体質",
+    text: "体型や体の特徴で当てはまるものは？",
+    options: [
+      { text: "全体的に引き締まっている", scores: { N:1 } },
+      { text: "均等に体重がついている", scores: { F:1 } },
+      { text: "お腹まわり・内臓脂肪が気になる", scores: { A:2, H:1 } },
+      { text: "下半身が太い・むくみ型・筋肉がほとんどない", scores: { H:2, G:1, E:1 } }
+    ]
+  },
+  {
+    id: 14,
+    category: "腸・消化",
+    text: "便通の状態はどうですか？",
+    options: [
+      { text: "毎日快適に出ている", scores: { N:1 } },
+      { text: "たまに便秘になる", scores: { G:1 } },
+      { text: "慢性的な便秘（3日以上出ないことが多い）", scores: { G:3 } },
+      { text: "便秘と下痢を繰り返す", scores: { G:2, A:2 } }
+    ]
+  },
+  {
+    id: 15,
+    category: "腸・消化",
+    text: "食後のお腹の張り・ガス・不快感はありますか？",
+    options: [
+      { text: "ほとんどない", scores: { N:1 } },
+      { text: "たまにある", scores: { G:1 } },
+      { text: "よくある（特定の食品の後など）", scores: { G:2 } },
+      { text: "ほぼ毎日お腹が張っている・ガスが多い", scores: { G:3 } }
+    ]
+  },
+  {
+    id: 16,
+    category: "食習慣",
+    text: "食事の規則性はどうですか？",
+    options: [
+      { text: "3食決まった時間に食べている", scores: { N:1 } },
+      { text: "たまに食事を抜くことがある", scores: { F:2 } },
+      { text: "不規則・食事をよく抜く・まとめ食い", scores: { F:3, E:1 } },
+      { text: "1日1〜2食しか食べない・夜中に食べる", scores: { F:3, H:1 } }
+    ]
+  },
+  {
+    id: 17,
+    category: "食習慣",
+    text: "食べる速さ・食べ方の特徴は？",
+    options: [
+      { text: "ゆっくり・よく噛んで食べる", scores: { N:1 } },
+      { text: "普通くらい", scores: { F:1 } },
+      { text: "早食い・あまり噛まない", scores: { F:2, G:1 } },
+      { text: "かなり早食い・ながら食べ・無意識に食べている", scores: { F:3, M:1 } }
+    ]
+  },
+  {
+    id: 18,
+    category: "食習慣",
+    text: "甘いもの・炭水化物への強い欲求はありますか？",
+    options: [
+      { text: "特に強い欲求はない", scores: { N:1 } },
+      { text: "少し好きだが我慢できる", scores: { N:1 } },
+      { text: "甘いものへの欲求がかなり強い", scores: { M:1, H:1, G:1 } },
+      { text: "食べ始めると止まらない・一種の依存感がある", scores: { M:2, G:2 } }
+    ]
+  },
+  {
+    id: 19,
+    category: "栄養・食事内容",
+    text: "普段の食事内容の偏りはありますか？",
+    options: [
+      { text: "野菜・タンパク質・炭水化物をバランスよく食べている", scores: { N:1 } },
+      { text: "野菜や食物繊維が少ないと思う", scores: { N:2, G:1 } },
+      { text: "炭水化物・脂質が多い、加工食品が多い", scores: { N:2, E:1 } },
+      { text: "かなり偏っている・インスタント・菓子が多い", scores: { N:3, G:1 } }
+    ]
+  },
+  {
+    id: 20,
+    category: "栄養・食事内容",
+    text: "水分摂取はどうですか？",
+    options: [
+      { text: "1.5L以上の水をしっかり飲んでいる", scores: { N:1 } },
+      { text: "1L前後は飲んでいると思う", scores: { G:1 } },
+      { text: "あまり水を飲まない・気がついたら飲んでいない", scores: { E:1, G:1 } },
+      { text: "水よりジュース・コーヒー・お茶が多い", scores: { N:2, H:1 } }
+    ]
+  }
+];
+
+// 7 Diet Types
+const TYPES = {
+  H: {
+    key: 'H',
+    icon: '🌸',
+    name: 'ホルモン整えタイプ',
+    tagline: '体の内側からホルモンバランスを整えることで、自然と痩せやすい体に',
+    reason: 'ホルモンバランスの乱れ（エストロゲン・プロゲステロン・甲状腺ホルモンなど）が代謝低下・脂肪蓄積・むくみの原因になっています。特に40代以降や更年期、生理不順がある方に多いタイプです。',
+    symptoms: ['むくみやすい・水太り', '生理不順・更年期症状', '肌・髪の乾燥・変化', '体が冷える', '少し食べても太る'],
+    approach: 'ホルモン分泌をサポートする栄養素を積極的に摂り、ホルモンバランスを乱す生活習慣を見直すことが最優先です。',
+    recommend: ['大豆製品（納豆・豆腐・豆乳）→イソフラボンでエストロゲンサポート', '亜鉛豊富な食品（牡蠣・ナッツ・赤身肉）', 'マグネシウム（海藻・葉物野菜・ナッツ類）', 'Ω-3脂肪酸（青魚・亜麻仁油・チアシード）', '22〜6時の質の良い睡眠を優先する', '規則正しい食事時間とゆったりした食事'],
+    avoid: ['過度なカロリー制限（ホルモン分泌が落ちる）', '精製糖質・砂糖の多い飲み物', '過度なカフェイン・アルコール', '強度の高い激しい運動のやりすぎ', '睡眠不足・ストレス放置'],
+    color: '#E8A0B4'
+  },
+  A: {
+    key: 'A',
+    icon: '🌊',
+    name: '自律神経リセットタイプ',
+    tagline: '自律神経を整えることで、代謝が自然に回復し体重が落ちやすくなります',
+    reason: 'ストレスや不規則な生活で交感神経が過活動状態になり、コルチゾール（ストレスホルモン）が慢性的に高くなっています。これが代謝低下・内臓脂肪蓄積・食欲コントロール困難の原因です。',
+    symptoms: ['なかなか寝付けない・眠りが浅い', '慢性的な疲れ・だるさ', '消化不良・胃もたれ', '気分の波が激しい', '过食と食欲不振を繰り返す'],
+    approach: '自律神経を整えることが最優先。過度な食事制限よりも、生活リズムの安定と副交感神経を優位にする習慣づくりを先に行います。',
+    recommend: ['発酵食品（腸-脳軸から自律神経をサポート）', 'トリプトファン含有食品（バナナ・牛乳・卵・豆腐）→セロトニン前駆体', '温かい飲み物・食事（副交感神経を優位に）', '1日3食・決まった時間に食べる', '38〜40℃のぬるめの入浴（20分）', '深呼吸・軽い瞑想・ストレッチ'],
+    avoid: ['夜のカフェイン（コーヒー・緑茶・エナジードリンク）', '不規則な食事時間・食事抜き', '夜22時以降の激しい運動', 'スマートフォンの長時間使用（特に就寝前）', '無理な食事制限（さらにストレスを増やす）'],
+    color: '#7FB5D5'
+  },
+  M: {
+    key: 'M',
+    icon: '💚',
+    name: 'マインドフル食べタイプ',
+    tagline: '食との関係を整えることが、一番効果的なダイエットになります',
+    reason: '感情的な食べ方（感情食い・ストレス食い）やダイエットへの罪悪感・極端な思考が、体重管理を困難にしています。「食事=ご褒美・罰」という思考パターンを変えることが最重要です。',
+    symptoms: ['ストレスで食べてしまう', 'ダイエットを「全部やめる」か「完璧にやる」で繰り返す', '食べた後に罪悪感を感じる', '夜・深夜に過食することがある', '感情の波と食欲がリンクしている'],
+    approach: '食事を敵にするのをやめ、食との健全な関係を築くことから始めます。過度な制限ではなく、マインドフルネスと自己肯定感の向上が鍵です。',
+    recommend: ['食事日記（何を食べたか + その時の気持ちも記録）', 'ゆっくり食べる練習（1口30回）', '「禁止食品」リストをなくす', '空腹感と満腹感を意識する練習', '好きな食べ物を少量楽しむ許可を自分に与える', '体重より体調・気分の変化に注目する'],
+    avoid: ['「食べてはいけないもの」を設定しすぎる', '体重の数字に一喜一憂する', '極端なカロリー制限・断食', '一人で頑張りすぎる（サポートを求めてOK）', '「昨日食べすぎたから今日は絶食」の代償行動'],
+    color: '#7BC8A4'
+  },
+  E: {
+    key: 'E',
+    icon: '⚡',
+    name: '代謝エンジン起動タイプ',
+    tagline: '筋肉量を増やして基礎代謝を上げることが、あなたの体の根本的な解決策',
+    reason: '基礎代謝の低下・筋肉量不足によって、消費カロリーが少なくなっています。少食なのに太る・体が冷える・疲れやすいのは代謝低下のサインです。運動不足と過去の厳しいダイエットが原因のことも多いです。',
+    symptoms: ['体が常に冷える', '少し食べただけで太る', '筋肉がほとんどない・体が柔らかい', 'リバウンドを繰り返している', 'やる気・エネルギーが出にくい'],
+    approach: '筋肉量を増やして基礎代謝を上げることが最優先。有酸素運動だけでなく、筋力トレーニングとタンパク質摂取を組み合わせます。',
+    recommend: ['高タンパク食（体重kg × 1.5g以上のタンパク質/日）', '筋力トレーニング週2〜3回（スクワット・体幹など）', '日常活動を増やす（NEAT）：階段・徒歩・こまめに立つ', '温かい食べ物で体温を上げる', 'しっかり朝食を食べる（代謝のスイッチを入れる）', '十分な睡眠でGH（成長ホルモン）分泌を促す'],
+    avoid: ['超低カロリーダイエット（代謝がさらに落ちる）', '有酸素運動だけ（筋肉が分解される）', 'タンパク質が少ない食事', '食事を抜いて1日1〜2食にする', '激しい運動の急なやりすぎ'],
+    color: '#F0C06E'
+  },
+  G: {
+    key: 'G',
+    icon: '🌿',
+    name: '腸活ファーストタイプ',
+    tagline: '腸内環境を整えることが、ダイエットだけでなく体全体の健康の鍵',
+    reason: '腸内フローラのバランスが乱れ、栄養吸収・代謝・免疫・ホルモン分泌など広い範囲に影響しています。便秘・お腹の張り・食後の不快感は腸内環境が乱れているサインです。',
+    symptoms: ['慢性的な便秘・下痢', 'お腹の張り・ガスが多い', '食後に眠くなる・だるい', '肌荒れが多い', '特定の食品で体調が崩れる'],
+    approach: '腸内フローラを整えることを最優先に。食物繊維・発酵食品・水分の3本柱で腸内環境を改善することが、ダイエットへの近道です。',
+    recommend: ['食物繊維1日20g以上（野菜・海藻・きのこ・豆類）', '発酵食品（ヨーグルト・納豆・キムチ・味噌・ぬか漬け）', 'プレバイオティクス（玉ねぎ・ニンニク・ごぼう・バナナ）', '水分1.5〜2L/日（腸の動きを促す）', '食事の多様性を高める（週20種以上の食材）', 'よく噛んで食べる・食事を急がない'],
+    avoid: ['人工甘味料（腸内細菌に悪影響）', '過度なアルコール・精製糖質', '食物繊維が極端に少ない食事', '過度なストレス（腸-脳軸でダイレクトに影響）', '睡眠不足（腸の動きが低下する）'],
+    color: '#6DB88E'
+  },
+  F: {
+    key: 'F',
+    icon: '🔄',
+    name: '食習慣リデザインタイプ',
+    tagline: '食べ方・タイミング・量のパターンを整えるだけで、体が変わり始めます',
+    reason: '食事の内容よりも「食べ方・タイミング・習慣のパターン」が体重増加の原因になっています。不規則な食事・早食い・ながら食べ・夜食などが、血糖値・代謝・食欲ホルモンに悪影響を与えています。',
+    symptoms: ['食事が不規則・よく食事を抜く', '早食い・ながら食べ', '夜遅い食事・夜食がある', '食べ始めると量が多くなる', '食事抜き→どか食いを繰り返す'],
+    approach: '食べる「内容」より食べる「タイミング・速さ・量・環境」を整えることから始めます。小さな習慣の積み重ねが体を変えます。',
+    recommend: ['まず3日間の食事記録（「見える化」から始める）', '朝食を食べる（1日のリズムをつくる）', 'ゆっくり食べる練習（箸を置く・よく噛む）', '食事に集中する（テレビ・スマホをしまう）', '夕食は就寝2〜3時間前までに', '16時間プチ断食（夜20時〜翌朝12時など）'],
+    avoid: ['食事を抜いてまとめて食べる', '夜21時以降の食事・夜食', 'テレビ・スマホを見ながら食べる', '立ち食い・急いで食べる', '「後でまとめて食べれば同じ」という考え'],
+    color: '#E8C06E'
+  },
+  N: {
+    key: 'N',
+    icon: '🥗',
+    name: '栄養バランス最適化タイプ',
+    tagline: '食事の質とバランスを整えるだけで、体が本来の力を取り戻します',
+    reason: 'PFCバランス（タンパク質・脂質・炭水化物）の偏りや、特定のビタミン・ミネラル不足が代謝・体組成・エネルギーレベルに影響しています。加工食品・精製食品の多い食生活の見直しが必要です。',
+    symptoms: ['偏食気味・野菜が少ない', '炭水化物や脂質が多い', '加工食品・インスタントが多い', '特定の栄養素が不足している', '肌・体調が安定しない'],
+    approach: 'カロリーの量よりも食事の「質」を重視します。タンパク質・野菜・良質な脂質を意識的に取り入れ、加工食品を減らすことから始めます。',
+    recommend: ['毎食タンパク質を必ず含める（卵・豆・魚・肉）', '野菜を毎食最低1種類（色の違う野菜を意識）', 'PFCバランスの目安：P20%:F25%:C55%', '鉄分（赤身肉・ほうれん草）・ビタミンD（魚・きのこ）に注目', '良質な油を使う（オリーブオイル・ごま油）', '食品ラベルを読む習慣をつける'],
+    avoid: ['加工食品・清涼飲料水・菓子の多食', '極端な糖質カットや脂質ゼロ', 'タンパク質が少なすぎる食事', '同じ食品ばかりを繰り返す', '白い精製炭水化物の偏食（白米・白パン）'],
+    color: '#85C4A8'
+  }
+};
+
+// ============================================================
+// DIAGNOSIS STATE
+// ============================================================
+let currentQ = 0;
+let answers = [];
+let scores = { H:0, A:0, M:0, E:0, G:0, F:0, N:0 };
+
+function startDiagnosis() {
+  currentQ = 0;
+  answers = new Array(QUESTIONS.length).fill(null);
+  scores = { H:0, A:0, M:0, E:0, G:0, F:0, N:0 };
+  document.getElementById('intro-screen').classList.add('hidden');
+  document.getElementById('question-screen').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const total = QUESTIONS.length;
+
+  // Update progress
+  document.getElementById('q-count').textContent = `${currentQ + 1} / ${total}`;
+  document.getElementById('q-remaining').textContent = total - currentQ - 1;
+  document.getElementById('progress-bar').style.width = `${((currentQ + 1) / total) * 100}%`;
+
+  // Update question content
+  document.getElementById('q-category').textContent = q.category;
+  document.getElementById('q-text').textContent = q.text;
+
+  // Render options
+  const optsList = document.getElementById('options-list');
+  const letters = ['A', 'B', 'C', 'D'];
+  optsList.innerHTML = q.options.map((opt, i) => `
+    <button class="option-btn ${answers[currentQ] === i ? 'selected' : ''}"
+      onclick="selectOption(${i})">
+      <span class="opt-num">${letters[i]}</span>
+      ${opt.text}
+    </button>
+  `).join('');
+
+  // Nav buttons
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  prevBtn.style.display = currentQ > 0 ? 'inline-flex' : 'none';
+  nextBtn.disabled = answers[currentQ] === null;
+  nextBtn.textContent = currentQ === total - 1 ? '結果を見る ✨' : '次へ →';
+
+  // Animate
+  document.getElementById('q-card').classList.remove('slide-in');
+  void document.getElementById('q-card').offsetWidth;
+  document.getElementById('q-card').classList.add('slide-in');
+}
+
+function selectOption(idx) {
+  answers[currentQ] = idx;
+  document.querySelectorAll('.option-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i === idx);
+    const num = btn.querySelector('.opt-num');
+    const letters = ['A', 'B', 'C', 'D'];
+    num.textContent = i === idx ? '✓' : letters[i];
+  });
+  document.getElementById('next-btn').disabled = false;
+}
+
+function nextQuestion() {
+  if (answers[currentQ] === null) return;
+
+  // Add scores
+  const selected = QUESTIONS[currentQ].options[answers[currentQ]];
+  Object.entries(selected.scores).forEach(([k, v]) => { scores[k] = (scores[k] || 0) + v; });
+
+  if (currentQ < QUESTIONS.length - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function prevQuestion() {
+  if (currentQ > 0) {
+    // Subtract scores from current question
+    if (answers[currentQ] !== null) {
+      const selected = QUESTIONS[currentQ].options[answers[currentQ]];
+      Object.entries(selected.scores).forEach(([k, v]) => { scores[k] = (scores[k] || 0) - v; });
+    }
+    // Subtract scores from previous question too (we'll re-add on next)
+    if (answers[currentQ - 1] !== null) {
+      const prevSelected = QUESTIONS[currentQ - 1].options[answers[currentQ - 1]];
+      Object.entries(prevSelected.scores).forEach(([k, v]) => { scores[k] = (scores[k] || 0) - v; });
+    }
+    currentQ--;
+    renderQuestion();
+  }
+}
+
+function showResult() {
+  // Find top type
+  const sortedTypes = Object.entries(scores).sort(([,a],[,b]) => b - a);
+  const topTypeKey = sortedTypes[0][0];
+  const topType = TYPES[topTypeKey];
+  const totalScore = Object.values(scores).reduce((a,b) => a+b, 0) || 1;
+
+  document.getElementById('question-screen').classList.add('hidden');
+  document.getElementById('result-screen').classList.remove('hidden');
+
+  const resultHTML = `
+    <div class="result-header">
+      <span class="result-icon">${topType.icon}</span>
+      <div class="result-label">あなたのタイプ</div>
+      <h2>${topType.name}</h2>
+      <p>${topType.tagline}</p>
+    </div>
+
+    <div class="card">
+      <div class="result-section-title">なぜ痩せにくいのか</div>
+      <p style="font-size:14px; line-height:1.8; color:var(--text);">${topType.reason}</p>
+    </div>
+
+    <div class="card">
+      <div class="result-section-title">よく見られる症状・特徴</div>
+      <div class="tag-list">
+        ${topType.symptoms.map(s => `<span class="tag">${s}</span>`).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="result-section-title">アプローチ方針</div>
+      <p style="font-size:14px; line-height:1.8; color:var(--text); margin-bottom:16px;">${topType.approach}</p>
+
+      <div class="result-section-title" style="margin-top:16px;">推奨する習慣・食事</div>
+      <ul class="advice-list">
+        ${topType.recommend.map(r => `<li>${r}</li>`).join('')}
+      </ul>
+
+      <div class="result-section-title" style="margin-top:16px;">避けたほうがよいこと</div>
+      <div class="tag-list">
+        ${topType.avoid.map(a => `<span class="tag avoid">✗ ${a}</span>`).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="result-section-title">タイプ別スコア分布</div>
+      ${sortedTypes.map(([key, score]) => {
+        const t = TYPES[key];
+        const pct = Math.round((score / totalScore) * 100);
+        return `
+          <div class="score-row">
+            <span class="score-label">${t.icon} ${t.name.replace('タイプ','')}</span>
+            <div class="score-track">
+              <div class="score-fill" style="width:${pct}%; background:linear-gradient(135deg, ${t.color}88, ${t.color})"></div>
+            </div>
+            <span style="font-size:12px; color:var(--text-light); min-width:32px; text-align:right;">${pct}%</span>
+          </div>
+        `;
+      }).join('')}
+      <p style="font-size:12px; color:var(--text-light); margin-top:10px;">※ 2位・3位のタイプも参考にすると、より効果的なアプローチができます</p>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn btn-primary" onclick="goToMealConsultation()">
+        🍽️ 食事相談AIに相談する
+      </button>
+      <button class="btn btn-secondary" onclick="retryDiagnosis()">
+        🔄 もう一度診断する
+      </button>
+    </div>
+
+    <div class="disclaimer">
+      ※ この診断結果は医療診断ではなく、生活習慣改善の参考情報です。症状が深刻な場合や持病をお持ちの方は、必ず医師・管理栄養士にご相談ください。
+    </div>
+  `;
+
+  document.getElementById('result-content').innerHTML = resultHTML;
+
+  // Animate score bars after render
+  setTimeout(() => {
+    document.querySelectorAll('.score-fill').forEach(el => {
+      const w = el.style.width;
+      el.style.width = '0';
+      setTimeout(() => { el.style.width = w; }, 100);
+    });
+  }, 100);
+}
+
+function retryDiagnosis() {
+  document.getElementById('result-screen').classList.add('hidden');
+  document.getElementById('intro-screen').classList.remove('hidden');
+}
+
+function goToMealConsultation() {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-meal').classList.add('active');
+  document.querySelectorAll('.tab-btn')[1].classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ============================================================
+// MEAL CONSULTATION (Claude API)
+// ============================================================
+let chatHistory = [];
+let isLoading = false;
+
+const SYSTEM_PROMPT = `あなたは温かく親しみやすい管理栄養士AIです。ユーザーが食べたものや食事の悩みについて相談してきます。
+
+以下のスタイルで回答してください：
+- 共感的で優しいトーン。食べたことを絶対に責めない
+- バランスのよかった点を必ず先に伝える（ポジティブ優先）
+- 改善提案は「〜するといいかも」「〜試してみませんか？」など提案調で
+- カロリーの目安は厳密でなくてよい（おおよそでOK）
+- 年代・性別・体質を考慮した個別アドバイス
+- 1回の返答は長くなりすぎず、3〜5段落程度にまとめる
+- 絵文字を適度に使って読みやすくする
+- 極端なダイエット方法（超低カロリー・断食）を推奨しない
+- 医療的な判断は「医師や専門家にご相談ください」と適切に促す
+
+今日食べたものを教えてもらったら、以下を伝える：
+1. 栄養バランスの評価（よかった点 + 改善点）
+2. おおよそのカロリー目安（±200kcalくらいの幅でOK）
+3. 次の食事への具体的な提案1〜2個
+4. 励ましや共感の言葉`;
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+
+  const apiKey = localStorage.getItem('diet_claude_api_key');
+  if (!apiKey) {
+    toggleSettings();
+    addMessage('ai', 'APIキーが設定されていません。下の「⚙️ APIキー設定」からAPIキーを入力してください。');
+    return;
+  }
+
+  addMessage('user', text);
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('chat-hints').style.display = 'none';
+
+  chatHistory.push({ role: 'user', content: text });
+  showTyping();
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-calls': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: chatHistory
+      })
+    });
+
+    removeTyping();
+
+    if (!response.ok) {
+      const err = await response.json();
+      if (response.status === 401) {
+        addMessage('ai', '❌ APIキーが無効です。正しいAPIキーを設定してください。');
+        toggleSettings();
+      } else if (response.status === 429) {
+        addMessage('ai', '⏳ リクエストが多すぎます。少し待ってから再度お試しください。');
+      } else {
+        addMessage('ai', `エラーが発生しました: ${err.error?.message || response.status}`);
+      }
+      chatHistory.pop();
+      return;
+    }
+
+    const data = await response.json();
+    const replyText = data.content[0].text;
+    chatHistory.push({ role: 'assistant', content: replyText });
+    addMessage('ai', replyText);
+
+  } catch (e) {
+    removeTyping();
+    chatHistory.pop();
+    addMessage('ai', `通信エラーが発生しました。インターネット接続をご確認ください。\n(${e.message})`);
+  } finally {
+    isLoading = false;
+    document.getElementById('send-btn').disabled = false;
+  }
+}
+
+function addMessage(role, text) {
+  const container = document.getElementById('chat-messages');
+  const isAI = role === 'ai';
+  const now = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+
+  const div = document.createElement('div');
+  div.className = `message ${role} fade-in`;
+
+  const formattedText = text.replace(/\n/g, '<br>');
+
+  div.innerHTML = `
+    <div class="message-avatar">${isAI ? '🌿' : '😊'}</div>
+    <div>
+      <div class="message-bubble">${formattedText}</div>
+      <span class="message-time">${now}</span>
+    </div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'message ai';
+  div.id = 'typing-msg';
+  div.innerHTML = `
+    <div class="message-avatar">🌿</div>
+    <div>
+      <div class="message-bubble">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing-msg');
+  if (el) el.remove();
+}
+
+function handleKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function useHint(btn) {
+  document.getElementById('chat-input').value = btn.textContent;
+  document.getElementById('chat-hints').style.display = 'none';
+  document.getElementById('chat-input').focus();
+}
+
+// API Key Management
+function toggleSettings() {
+  const panel = document.getElementById('settings-panel');
+  const isVisible = panel.style.display !== 'none';
+  panel.style.display = isVisible ? 'none' : 'block';
+  if (!isVisible) {
+    const saved = localStorage.getItem('diet_claude_api_key');
+    if (saved) {
+      document.getElementById('api-key-input').value = saved;
+      document.getElementById('api-status').textContent = '✓ APIキーが保存されています';
+      document.getElementById('api-status').className = 'api-status ok';
+    }
+  }
+}
+
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  const statusEl = document.getElementById('api-status');
+
+  if (!key) {
+    statusEl.textContent = 'APIキーを入力してください';
+    statusEl.className = 'api-status ng';
+    return;
+  }
+  if (!key.startsWith('sk-ant-')) {
+    statusEl.textContent = '⚠️ 形式が正しくない可能性があります（sk-ant-... で始まるキーを入力）';
+    statusEl.className = 'api-status ng';
+  } else {
+    localStorage.setItem('diet_claude_api_key', key);
+    statusEl.textContent = '✓ 保存しました！';
+    statusEl.className = 'api-status ok';
+    document.getElementById('key-status-icon').textContent = '✅';
+    setTimeout(() => {
+      document.getElementById('settings-panel').style.display = 'none';
+    }, 1200);
+  }
+}
+
+// Init: check API key
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('diet_claude_api_key');
+  if (saved) {
+    document.getElementById('key-status-icon').textContent = '✅';
+  }
+});
+</script>
+</body>
+</html>
