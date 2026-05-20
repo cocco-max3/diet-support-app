@@ -6,6 +6,24 @@ from pathlib import Path
 
 import anthropic
 
+_ENV_FILE = Path(__file__).parent / ".env"
+
+def _load_env_file():
+    """`.env` ファイルがあれば環境変数に読み込む"""
+    if not _ENV_FILE.exists():
+        return
+    for line in _ENV_FILE.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+_load_env_file()
+
 from prompts import build_prompt, parse_response, build_markdown
 from utils import (
     log, log_error, log_skip, log_info,
