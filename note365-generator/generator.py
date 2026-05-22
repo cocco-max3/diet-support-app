@@ -33,9 +33,10 @@ from utils import (
 
 CONFIG_PATH = Path(__file__).parent / "config.json"
 
-RETRY_COUNT = 3
-RETRY_WAIT = [5, 10, 20]
-ARTICLE_WAIT = 3
+RETRY_COUNT = 5
+RETRY_WAIT = [10, 30, 60, 120, 180]
+OVERLOAD_WAIT = [30, 60, 120, 180, 240]
+ARTICLE_WAIT = 5
 MODEL = "claude-haiku-4-5-20251001"
 
 
@@ -119,11 +120,22 @@ def generate_one(
             return True
 
         except anthropic.RateLimitError as e:
-            wait = RETRY_WAIT[attempt - 1] * 3
+            wait = OVERLOAD_WAIT[attempt - 1]
             log_error(day, 365, f"レート制限 ({e})", attempt)
             if attempt < RETRY_COUNT:
                 log_info(f"  {wait}秒待機してリトライします...")
                 time.sleep(wait)
+        except anthropic.APIStatusError as e:
+            if e.status_code == 529:
+                wait = OVERLOAD_WAIT[attempt - 1]
+                log_error(day, 365, f"API过负荷 (Overloaded)", attempt)
+                if attempt < RETRY_COUNT:
+                    log_info(f"  {wait}秒待機してリトライします...")
+                    time.sleep(wait)
+            else:
+                log_error(day, 365, f"APIエラー ({e})", attempt)
+                if attempt < RETRY_COUNT:
+                    time.sleep(RETRY_WAIT[attempt - 1])
         except anthropic.APIError as e:
             log_error(day, 365, f"APIエラー ({e})", attempt)
             if attempt < RETRY_COUNT:
