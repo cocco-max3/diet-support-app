@@ -33,11 +33,11 @@ from utils import (
 
 CONFIG_PATH = Path(__file__).parent / "config.json"
 
-RETRY_COUNT = 5
-RETRY_WAIT = [10, 30, 60, 120, 180]
-OVERLOAD_WAIT = [30, 60, 120, 180, 240]
+RETRY_COUNT = 3
+RETRY_WAIT = [5, 10, 20]
+OVERLOAD_WAIT = [15, 30, 60]
 ARTICLE_WAIT = 5
-MODEL = "claude-haiku-4-5-20251001"
+MODEL = "claude-sonnet-4-6"
 
 
 def load_config() -> dict:
@@ -127,11 +127,13 @@ def generate_one(
                 time.sleep(wait)
         except anthropic.APIStatusError as e:
             if e.status_code == 529:
-                wait = OVERLOAD_WAIT[attempt - 1]
-                log_error(day, 365, f"API过负荷 (Overloaded)", attempt)
+                wait = OVERLOAD_WAIT[min(attempt - 1, len(OVERLOAD_WAIT) - 1)]
+                log_error(day, 365, f"API過負荷 (Overloaded)", attempt)
                 if attempt < RETRY_COUNT:
                     log_info(f"  {wait}秒待機してリトライします...")
                     time.sleep(wait)
+                else:
+                    log_info(f"  スキップして次へ進みます")
             else:
                 log_error(day, 365, f"APIエラー ({e})", attempt)
                 if attempt < RETRY_COUNT:
