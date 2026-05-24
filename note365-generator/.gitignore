@@ -3,3 +3,5 @@ __pycache__/
 output/
 progress.json
 .env
+note_export/
+note_import.zip
