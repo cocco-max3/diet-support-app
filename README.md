@@ -18,6 +18,16 @@
 食事相談はAnthropicのClaude APIキーが必要です。
 [Anthropic Console](https://console.anthropic.com/) から取得できます。
 
+## 診断結果からのLINE登録導線（非押し売り）
+
+診断結果画面に、タイプ別の無料PDFガイドを公式LINEで受け取れる案内カードを設置しています。売り込み色を出さないよう、CTAは結果表示の最後に一度だけ、「気になったら」レベルの軽さで置いています。
+
+利用するには `index.html` 内の以下の行を、実際の公式LINEアカウントの友だち追加URLに差し替えてください（現状はプレースホルダーです）。
+
+```js
+const LINE_URL = "https://lin.ee/REPLACE_WITH_YOUR_LINE_URL";
+```
+
 ---
 
 Built with Claude Code
